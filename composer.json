@@ -1,0 +1,25 @@
+{
+    "name": "lotgd/module-dragon-kills",
+    "description": "Track dragon kills in your realm.",
+    "type": "lotgd-module",
+    "license": "AGPL-3.0",
+    "authors": [
+        {
+            "name": "Austen McDonald",
+            "email": "austen.mcdonald@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/lotgd/module-dragon-kills",
+    "extra": {
+        "lotgd-namespace": "LotGD\\Modules\\DragonKills\\",
+        "lotgd-subscriptions": [
+            "e/lotgd/dragon-kills/kill"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "LotGD\\Modules\\DragonKills\\": "src/"
+        }
+    },
+    "require": {}
+}
