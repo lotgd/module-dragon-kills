@@ -23,9 +23,9 @@ class Module implements Module {
                 $dk->save();
 
                 // For ease of access, also store the count on the character.
-                $count = $c->getProperty('dk', 0);
+                $count = $c->getProperty('lotgd/dragon-kills/dk', 0);
                 $count++;
-                $c->setProperty('dk', $count);
+                $c->setProperty('lotgd/dragon-kills/dk', $count);
                 break;
         }
     }

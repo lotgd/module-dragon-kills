@@ -1,6 +1,6 @@
 # Module: Dragon Kills
 
-A simple way to track dragon kills in your realm. Stores the number of "DK's" on the Character model in `$c->getProperty('dk')`
+A simple way to track dragon kills in your realm. Stores the number of "DK's" on the Character model in `$c->getProperty('lotgd/dragon-kills/dk')`
 and also keeps an entry for each DK in a table.
 
 ## Events
