@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace LotGD\Modules\DragonKills;
 
 use LotGD\Core\Game;
-use LotGD\Core\Module;
+use LotGD\Core\Module as ModuleInterface;
 
 use LotGD\Modules\DragonKills\Models\DragonKill;
 
-class Module implements Module {
-    public static function handleEvent(string $event, array $context)
+class Module implements ModuleInterface {
+    public static function handleEvent(Game $g, string $event, array &$context)
     {
-        $g = $context['g'];
         $c = $context['killer'];
         switch ($event) {
             case 'e/lotgd/dragon-kills/kill':

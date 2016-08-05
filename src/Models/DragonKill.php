@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace LotGD\DragonKills\Models;
+namespace LotGD\Modules\DragonKills\Models;
 
 use DateTime;
 
@@ -9,13 +9,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
 
+use LotGD\Core\Models\SaveableInterface;
+use LotGD\Core\Tools\Model\Creator;
+
 /**
  * Model for tracking dragon kills, including who and when they slayed the
  * horrid beast.
  * @Entity
  * @Table(name="lotgd_dragon_kills")
  */
-class DragonKill
+class DragonKill implements SaveableInterface
 {
     use Creator;
 

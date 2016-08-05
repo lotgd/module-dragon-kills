@@ -1,0 +1,3 @@
+entityNamespace: "LotGD\\Modules\\DragonKills\\"
+subscriptionPatterns:
+    - "/e\/lotgd\/dragon-kills\/kill/"
