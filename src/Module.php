@@ -5,6 +5,7 @@ namespace LotGD\Modules\DragonKills;
 
 use LotGD\Core\Game;
 use LotGD\Core\Module as ModuleInterface;
+use LotGD\Core\Models\Module as ModuleModel;
 
 use LotGD\Modules\DragonKills\Models\DragonKill;
 
@@ -28,6 +29,6 @@ class Module implements ModuleInterface {
                 break;
         }
     }
-    public static function onRegister(Game $g) { }
-    public static function onUnregister(Game $g) { }
+    public static function onRegister(Game $g, ModuleModel $module) { }
+    public static function onUnregister(Game $g, ModuleModel $module) { }
 }
