@@ -10,7 +10,8 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
 
 use LotGD\Core\Models\SaveableInterface;
-use LotGD\Core\Tools\Model\Creator;
+use LotGD\Core\Models\Character;
+use LotGD\Core\Tools\Model\Saveable;
 
 /**
  * Model for tracking dragon kills, including who and when they slayed the
@@ -20,12 +21,12 @@ use LotGD\Core\Tools\Model\Creator;
  */
 class DragonKill implements SaveableInterface
 {
-    use Creator;
+    use Saveable;
 
     /** @Id @Column(type="integer") @GeneratedValue */
     private $id;
     /**
-     * @ManyToOne(targetEntity="Character", fetch="EAGER")
+     * @ManyToOne(targetEntity="LotGD\Core\Models\Character", fetch="EAGER")
      * @JoinColumn(name="killer_id", referencedColumnName="id", nullable=false)
      */
     private $killer;

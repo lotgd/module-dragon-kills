@@ -15,5 +15,13 @@
             "LotGD\\Modules\\DragonKills\\": "src/"
         }
     },
-    "require": {}
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://code.lot.gd"
+        }
+    ],
+    "require": {
+        "lotgd/core": "dev-master"
+    }
 }
