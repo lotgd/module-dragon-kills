@@ -18,7 +18,6 @@ characters:
 scenes:
     -
         id: 1
-        parent:
         title: "Village"
         description: "You arrive in a village."
         template: 'lotgd/test/village'

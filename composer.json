@@ -22,6 +22,9 @@
         }
     ],
     "require": {
-        "lotgd/core": "dev-master"
+        "lotgd/core": "0.1.0-alpha"
+    },
+    "config": {
+        "secure-http": false
     }
 }
