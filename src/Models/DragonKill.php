@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace LotGD\Modules\DragonKills\Models;
+namespace LotGD\Module\DragonKills\Models;
 
 use DateTime;
 

@@ -1,22 +1,26 @@
 <?php
 declare(strict_types=1);
 
-namespace LotGD\Modules\DragonKills;
+namespace LotGD\Module\DragonKills;
 
+use Composer\Script\Event;
+use LotGD\Core\Events\EventContext;
 use LotGD\Core\Game;
 use LotGD\Core\Module as ModuleInterface;
 use LotGD\Core\Models\Character;
 use LotGD\Core\Models\Module as ModuleModel;
 
-use LotGD\Modules\DragonKills\Models\DragonKill;
+use LotGD\Module\DragonKills\Models\DragonKill;
 
 class Module implements ModuleInterface {
-    const DragonKillsProperty = 'lotgd/dragon-kills/dk';
+    const CharacterPropertyDragonKills = 'lotgd/dragon-kills/dk';
     const DragonKilledEvent = 'e/lotgd/dragon-kills/kill';
     private $g;
 
-    public static function handleEvent(Game $g, string $event, array &$context)
+    public static function handleEvent(Game $g, EventContext $context): EventContext
     {
+        $event = $context->getEvent();
+
         switch ($event) {
             case self::DragonKilledEvent:
                 // Save an entry in the DB for this DK.
@@ -30,22 +34,17 @@ class Module implements ModuleInterface {
                 $module->setDragonKillsForUser($g->getCharacter(), $count);
                 break;
         }
-    }
-    public static function onRegister(Game $g, ModuleModel $module) { }
-    public static function onUnregister(Game $g, ModuleModel $module) { }
 
-    public function __construct(Game $g)
-    {
-        $this->g = $g;
+        return $context;
     }
 
-    public function getDragonKillsForUser(Character $c)
+    public static function onRegister(Game $g, ModuleModel $module)
     {
-        return $c->getProperty(self::DragonKillsProperty, 0);
+
     }
 
-    public function setDragonKillsForUser(Character $c, int $count)
+    public static function onUnregister(Game $g, ModuleModel $module)
     {
-        $c->setProperty(self::DragonKillsProperty, $count);
+
     }
 }
