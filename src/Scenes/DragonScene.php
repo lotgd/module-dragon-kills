@@ -121,6 +121,9 @@ TXT
                 $viewpoint->addActionGroup($dragonActions);
             }
             $dragonActions->addAction(new Action($viewpoint->getScene()->getId(), "Enter the cave", ["subAction" => "enter"]));
+
+            # Set "user has seen dragon today" to true.
+            $g->getCharacter()->setProperty(DragonKillsModule::CharacterPropertySeenDragon, true);
         }
 
         return $context;
