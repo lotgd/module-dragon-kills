@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace LotGD\Module\DragonKills\Scenes;
 
+use Doctrine\Common\Util\Debug;
 use LotGD\Core\Action;
 use LotGD\Core\ActionGroup;
 use LotGD\Core\Events\EventContext;
@@ -17,7 +18,7 @@ class DragonScene
 {
     const Template = DragonKillsModule::ModuleIdentifier . "/dragon";
     const ActionGroups = [
-        "dragon" => [DragonKillsModule::ModuleIdentifier . "/dragon/dragon", "The Green Dragon", 0],
+        "dragon" => [DragonKillsModule::ModuleIdentifier . "/dragon/dragon", "Dragon's Lair", 0],
         "back" => [DragonKillsModule::ModuleIdentifier . "/dragon/back", "Back", 100],
     ];
 
@@ -87,6 +88,39 @@ TXT
         # add an action to every dragon kill scene.
         foreach ($dragonScenes as $scene) {
             $fightGroup->addAction(new Action($scene->getId(), sprintf("Seek out %s", $scene->getTitle())));
+        }
+
+        return $context;
+    }
+
+    /**
+     * Handles the event if character navigates to a DragonScene templated scene.
+     * @param Game $g
+     * @param EventContext $context
+     * @return EventContext
+     */
+    public static function navigateToScene(Game $g, EventContext $context): EventContext
+    {
+        /** @var Viewpoint $viewpoint */
+        $viewpoint = $context->getDataField("viewpoint");
+        /** @var array $parameters */
+        $parameters = $context->getDataField("parameters");
+
+        # No subAction => display intro.
+        if (empty($parameters["subAction"])) {
+            # Rename the back action
+            /** @var Action $backAction */
+            $backAction = $viewpoint->findActionGroupById(self::ActionGroups["back"][0])->getActions()[0];
+            $backAction->setTitle("Run away like a baby");
+
+            # Add the deeper action
+            if ($viewpoint->hasActionGroup(self::ActionGroups["dragon"][0])) {
+                $dragonActions = $viewpoint->findActionGroupById(self::ActionGroups["dragon"][0]);
+            } else {
+                $dragonActions = new ActionGroup(self::ActionGroups["dragon"][0], self::ActionGroups["dragon"][1], self::ActionGroups["dragon"][2]);
+                $viewpoint->addActionGroup($dragonActions);
+            }
+            $dragonActions->addAction(new Action($viewpoint->getScene()->getId(), "Enter the cave", ["subAction" => "enter"]));
         }
 
         return $context;

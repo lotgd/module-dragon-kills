@@ -1,5 +1,5 @@
 entityNamespace: "LotGD\\Module\\DragonKills\\Models\\"
 subscriptionPatterns:
-  - "#e/lotgd/module-forest/forest-navigation#"
-  - "#e/lotgd/core/navigate-to/lotgd/module-dragon-kills/dragon#"
+  - "#h/lotgd/module-forest/forest-navigation#"
+  - "#h/lotgd/core/navigate-to/lotgd/module-dragon-kills/dragon#"
   - "/e\/lotgd\/dragon-kills\/kill/"

@@ -75,6 +75,9 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame("The Green Dragon", $v->getTitle());
 
         // Assert action back
+        $action = $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Back");
+        $action = $this->assertHasAction($v, ["getTitle", "Run away like a baby"], "Back");
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Back");
 
 
         // Assert action to green dragon disappeared

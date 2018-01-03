@@ -18,10 +18,10 @@ use LotGD\Module\Forest\Module as ForestModule;
 use LotGD\Module\Forest\Scenes\Forest;
 
 class Module implements ModuleInterface {
-    const ModuleIdentifier = "module-dragon-kills";
+    const ModuleIdentifier = "lotgd/module-dragon-kills";
 
-    const CharacterPropertyDragonKills = 'lotgd/module-dragon-kills/dk';
-    const CharacterPropertySeenDragon = 'lotgd/module-dragon-kills/seenDragon';
+    const CharacterPropertyDragonKills = self::ModuleIdentifier . "/dk";
+    const CharacterPropertySeenDragon = self::ModuleIdentifier . "/seenDragon";
 
     const DragonKilledEvent = 'e/lotgd/module-dragon-kills/kill';
 
@@ -32,6 +32,10 @@ class Module implements ModuleInterface {
         switch ($event) {
             case ForestModule::HookForestNavigation:
                 return DragonScene::forestNavigationHook($g, $context);
+                break;
+
+            case "h/lotgd/core/navigate-to/" . DragonScene::Template:
+                return DragonScene::navigateToScene($g, $context);
                 break;
 
             case self::DragonKilledEvent:
