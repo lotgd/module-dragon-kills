@@ -36,4 +36,48 @@ class ModuleTest extends ModuleTestCase
 
         Module::handleEvent($this->g, $context);
     }
+
+    protected function goToForest(int $characterId, callable $executeBeforeTakingActionToForest = null): array
+    {
+        /** @var Game $game */
+        $game = $this->g;
+        /** @var Character $character */
+        $character = $this->getEntityManager()->getRepository(Character::class)->find($characterId);
+        $game->setCharacter($character);
+
+        // New day
+        $v = $game->getViewpoint();
+        $this->assertSame("It is a new day!", $v->getTitle());
+        // Village
+        $action = $v->getActionGroups()[0]->getActions()[0];
+        $game->takeAction($action->getId());
+        $this->assertSame("Village", $v->getTitle());
+        // Forest
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
+
+        if ($executeBeforeTakingActionToForest !== NULL) {
+            $executeBeforeTakingActionToForest($game, $v, $character);
+        }
+
+        $game->takeAction($action->getId());
+        $this->assertSame("Forest", $v->getTitle());
+
+        return [$game, $v, $character];
+    }
+
+    public function testIfConnectionToDragonIsPresentIfCharacterIsLevel15AndHasNotYetSeenDragonAndIfConnectionIsGoneIfHeLeaves()
+    {
+        [$game, $v, $character] = $this->goToForest(1);
+
+        // Assert action to green dragon and go there
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $game->takeAction($action->getId());
+        $this->assertSame("The Green Dragon", $v->getTitle());
+
+        // Assert action back
+
+
+        // Assert action to green dragon disappeared
+        //$action = $this->assertNotHasAction($v, ["getDestinationSceneId", 6], "Fight");
+    }
 }

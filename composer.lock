@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "858bd475d7fabe1b775c834a094df5f5",
-    "content-hash": "51b8271d7e9a0d9a1113718ea04c63ba",
+    "hash": "dbf53fd8651ece3a476df141d118bd53",
+    "content-hash": "729841596609fda1bcd591bcce2f0d50",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -1143,6 +1143,54 @@
             "time": "2017-12-25 13:59:55"
         },
         {
+            "name": "lotgd/module-forest",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lotgd/module-forest.git",
+                "reference": "cfc55a38ea7090f05f8e6e3f36fc24dc1ca9957c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lotgd/module-forest/zipball/cfc55a38ea7090f05f8e6e3f36fc24dc1ca9957c",
+                "reference": "cfc55a38ea7090f05f8e6e3f36fc24dc1ca9957c",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/orm": "2.5.*",
+                "lotgd/core": "dev-feature/viewpoint-api as v0.3.3-alpha",
+                "lotgd/module-new-day": "dev-master as v0.3.3-alpha",
+                "lotgd/module-res-fight": "dev-master as v0.3.3-alpha",
+                "lotgd/module-village": "dev-master as v0.3.3-alpha"
+            },
+            "require-dev": {
+                "phpunit/dbunit": "*",
+                "phpunit/phpunit": "^4.1|^5.1"
+            },
+            "type": "lotgd-module",
+            "autoload": {
+                "psr-4": {
+                    "LotGD\\Module\\Forest\\": "src/",
+                    "LotGD\\Module\\Forest\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "AGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Basilius Sauter",
+                    "email": "basilius.sauter@gmail.com"
+                }
+            ],
+            "description": "Adds a forest to the village where players can combat monsters and earn experience.",
+            "support": {
+                "source": "https://github.com/lotgd/module-forest/tree/master",
+                "issues": "https://github.com/lotgd/module-forest/issues"
+            },
+            "time": "2018-01-03 14:07:00"
+        },
+        {
             "name": "lotgd/module-new-day",
             "version": "dev-master",
             "source": {
@@ -1454,23 +1502,23 @@
         },
         {
             "name": "seld/jsonlint",
-            "version": "1.6.2",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/jsonlint.git",
-                "reference": "7a30649c67ee0d19faacfd9fa2cfb6cc032d9b19"
+                "reference": "9b355654ea99460397b89c132b5c1087b6bf4473"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/7a30649c67ee0d19faacfd9fa2cfb6cc032d9b19",
-                "reference": "7a30649c67ee0d19faacfd9fa2cfb6cc032d9b19",
+                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/9b355654ea99460397b89c132b5c1087b6bf4473",
+                "reference": "9b355654ea99460397b89c132b5c1087b6bf4473",
                 "shasum": ""
             },
             "require": {
                 "php": "^5.3 || ^7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.5"
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0"
             },
             "bin": [
                 "bin/jsonlint"
@@ -1499,7 +1547,7 @@
                 "parser",
                 "validator"
             ],
-            "time": "2017-11-30 15:34:22"
+            "time": "2018-01-03 12:13:57"
         },
         {
             "name": "seld/phar-utils",
@@ -3229,6 +3277,12 @@
             "alias_normalized": "0.3.3.0-alpha",
             "version": "9999999-dev",
             "package": "lotgd/module-res-fight"
+        },
+        {
+            "alias": "v0.3.3-alpha",
+            "alias_normalized": "0.3.3.0-alpha",
+            "version": "9999999-dev",
+            "package": "lotgd/module-forest"
         }
     ],
     "minimum-stability": "stable",
@@ -3236,7 +3290,8 @@
         "lotgd/core": 20,
         "lotgd/module-village": 20,
         "lotgd/module-new-day": 20,
-        "lotgd/module-res-fight": 20
+        "lotgd/module-res-fight": 20,
+        "lotgd/module-forest": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
