@@ -7,6 +7,14 @@ characters:
     health: 200
     level: 15
     deletedAt:
+  -
+    id: 2
+    name: "Gandalf the Tired"
+    displayName: "Gandalf the Tired"
+    maxHealth: 200
+    health: 200
+    level: 15
+    deletedAt:
 scenes:
   -
     id: 1
@@ -110,6 +118,10 @@ event_subscriptions:
     pattern: "#h/lotgd/module-res-fight/battleOver#"
     class: "LotGD\\Module\\Forest\\Module"
     library: "lotgd/module-forest"
+  -
+    pattern: "#h/lotgd/module-new-day/after#"
+    class: "LotGD\\Module\\DragonKills\\Module"
+    library: "lotgd/module-dragon-kills"
   -
     pattern: "#h/lotgd/module-forest/forest-navigation#"
     class: "LotGD\\Module\\DragonKills\\Module"

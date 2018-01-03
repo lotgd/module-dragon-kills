@@ -16,6 +16,7 @@ use LotGD\Module\DragonKills\Models\DragonKill;
 use LotGD\Module\DragonKills\Scenes\DragonScene;
 use LotGD\Module\Forest\Module as ForestModule;
 use LotGD\Module\Forest\Scenes\Forest;
+use LotGD\Module\NewDay\Module as NewDayModule;
 
 class Module implements ModuleInterface {
     const ModuleIdentifier = "lotgd/module-dragon-kills";
@@ -36,6 +37,10 @@ class Module implements ModuleInterface {
 
             case "h/lotgd/core/navigate-to/" . DragonScene::Template:
                 return DragonScene::navigateToScene($g, $context);
+                break;
+
+            case NewDayModule::HookAfterNewDay:
+                $g->getCharacter()->setProperty(self::CharacterPropertySeenDragon, false);
                 break;
 
             case self::DragonKilledEvent:

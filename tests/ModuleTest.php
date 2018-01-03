@@ -14,7 +14,7 @@ use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Res\Fight\Tests\helpers\EventRegistry;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
 
-use LotGD\Module\DragonKills\Module;
+use LotGD\Module\DragonKills\Module as DragonKillModule;
 
 class ModuleTest extends ModuleTestCase
 {
@@ -34,7 +34,7 @@ class ModuleTest extends ModuleTestCase
             EventContextData::create([])
         );
 
-        Module::handleEvent($this->g, $context);
+        DragonKillModule::handleEvent($this->g, $context);
     }
 
     protected function goToForest(int $characterId, callable $executeBeforeTakingActionToForest = null): array
@@ -85,5 +85,17 @@ class ModuleTest extends ModuleTestCase
 
         // Assert action to green dragon disappeared
         $action = $this->assertNotHasAction($v, ["getDestinationSceneId", 6], "Fight");
+    }
+
+    public function testIfConnectionToDragonIsPresentIfCharacterHadNewDayReset()
+    {
+        $character = $this->getEntityManager()->getRepository(Character::class)->find(2);
+        $character->setProperty(DragonKillModule::CharacterPropertySeenDragon, true);
+        $this->assertTrue($character->getProperty(DragonKillModule::CharacterPropertySeenDragon, null));
+        [$game, $v, $character] = $this->goToForest(2);
+
+        // Assert action to green dragon it not there.
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $this->assertFalse($character->getProperty(DragonKillModule::CharacterPropertySeenDragon, null));
     }
 }
