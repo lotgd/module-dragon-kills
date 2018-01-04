@@ -10,6 +10,7 @@ use LotGD\Core\Game;
 use LotGD\Core\Models\Character;
 use LotGD\Core\Models\Viewpoint;
 use LotGD\Core\Tests\ModelTestCase;
+use LotGD\Module\DragonKills\Tests\Helpers\DragonKillsEvent;
 use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Res\Fight\Tests\helpers\EventRegistry;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
@@ -127,6 +128,7 @@ class ModuleTest extends ModuleTestCase
         } while (true);
 
         $this->assertFalse($character->isAlive());
+        $this->assertSame("Defeat!", $v->getTitle());
         $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 1]);
         $action2 = $this->assertHasAction($v, ["getTitle", "Return to the village"]);
 
@@ -134,5 +136,48 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame($action1, $action2);
         $game->takeAction($action1->getId());
         $this->assertSame("Village", $v->getTitle());
+    }
+
+    public function testIfDragonSceneConnectsToNewDayIfCharacterHasWonAndIfEverythingIsBackProperly()
+    {
+        /** @var Game $game */
+        /** @var Viewpoint $v */
+        /** @var Character $character */
+        [$game, $v, $character] = $this->goToForest(4);
+
+        // Go to the cave
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $game->takeAction($action->getId());
+        $this->assertSame("The Green Dragon", $v->getTitle());
+
+        // Challenge the dragon
+        $action = $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
+
+        // Fight until we win
+        do {
+            $game->takeAction($action->getId());
+            // Make sure we win by healing every round
+            $character->setHealth($character->getMaxHealth());
+
+            if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null) {
+                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+            } else {
+                break;
+            }
+        } while (true);
+
+        $this->assertTrue($character->isAlive());
+        $this->assertSame("Victory!", $v->getTitle());
+        $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 6]);
+        $action2 = $this->assertHasAction($v, ["getTitle", "Continue"]);
+
+        $eventCountBefore = DragonKillsEvent::$called;
+
+        $this->assertSame($action1, $action2);
+        $game->takeAction($action1->getId());
+
+        $this->assertSame($eventCountBefore+1, DragonKillsEvent::$called);
+        $this->assertSame(1, $character->getLevel());
+        $this->assertSame(10, $character->getMaxHealth());
     }
 }

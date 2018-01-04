@@ -23,6 +23,14 @@ characters:
     health: 10
     level: 15
     deletedAt:
+  -
+    id: 4
+    name: "Gandalf the White"
+    displayName: "Gandalf the White"
+    maxHealth: 150
+    health: 150
+    level: 15
+    deletedAt:
 scenes:
   -
     id: 1
@@ -141,4 +149,12 @@ event_subscriptions:
   -
     pattern: "#h/lotgd/module-res-fight/battleOver#"
     class: "LotGD\\Module\\DragonKills\\Module"
+    library: "lotgd/module-dragon-kills"
+  -
+    pattern: "#e/lotgd/module-dragon-kills/kill#"
+    class: "LotGD\\Module\\DragonKills\\Module"
+    library: "lotgd/module-dragon-kills"
+  -
+    pattern: "#e/lotgd/module-dragon-kills/kill#"
+    class: "LotGD\\Module\\DragonKills\\Tests\\Helpers\\DragonKillsEvent"
     library: "lotgd/module-dragon-kills"

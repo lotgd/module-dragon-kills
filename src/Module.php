@@ -12,6 +12,7 @@ use LotGD\Core\Module as ModuleInterface;
 use LotGD\Core\Models\Character;
 use LotGD\Core\Models\Module as ModuleModel;
 
+use LotGD\Module\DragonKills\Models\CharacterDragonKillExtension;
 use LotGD\Module\DragonKills\Models\DragonKill;
 use LotGD\Module\DragonKills\Scenes\DragonScene;
 use LotGD\Module\Forest\Module as ForestModule;
@@ -25,7 +26,7 @@ class Module implements ModuleInterface {
     const CharacterPropertyDragonKills = self::ModuleIdentifier . "/dk";
     const CharacterPropertySeenDragon = self::ModuleIdentifier . "/seenDragon";
 
-    const DragonKilledEvent = 'e/lotgd/module-dragon-kills/kill';
+    const DragonKilledEvent = "e/" . self::ModuleIdentifier . "/kill";
 
     public static function handleEvent(Game $g, EventContext $context): EventContext
     {
@@ -50,14 +51,18 @@ class Module implements ModuleInterface {
 
             case self::DragonKilledEvent:
                 // Save an entry in the DB for this DK.
-                $dk = new DragonKill($g->getCharacter(), $g->getTimeKeeper()->gameTime());
+                $dk = new DragonKill($g->getCharacter(), $g->getTimeKeeper()->getGameTime());
                 $dk->save($g->getEntityManager());
 
+                $character = $g->getCharacter();
+
                 // For ease of access, also store the count on the character.
-                $module = new self($g);
-                $count = $module->getDragonKillsForUser($g->getCharacter());
-                $count++;
-                $module->setDragonKillsForUser($g->getCharacter(), $count);
+                CharacterDragonKillExtension::incrementDragonKillCountForCharacter($character, 1);
+
+                // Reset character
+                $character->setLevel(1);
+                $character->setMaxHealth($character->getMaxHealth() - 140);
+                $character->setHealth($character->getMaxHealth());
                 break;
         }
 

@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping\Table;
 use LotGD\Core\Models\SaveableInterface;
 use LotGD\Core\Models\Character;
 use LotGD\Core\Tools\Model\Saveable;
+use LotGD\Module\DragonKills\Module as DragonKillModule;
+use LotGD\Module\DragonKills\Tests\Helpers\DragonKillsEvent;
 
 /**
  * Model for tracking dragon kills, including who and when they slayed the
