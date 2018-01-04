@@ -63,6 +63,10 @@ class Module implements ModuleInterface {
                 $character->setLevel(1);
                 $character->setMaxHealth($character->getMaxHealth() - 140);
                 $character->setHealth($character->getMaxHealth());
+
+                // Reset experience
+                $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 0);
+                $character->setProperty(ResFightModule::CharacterPropertyNeededExperience, ResFightModule::getNeededExperienceByLevel(1));
                 break;
         }
 

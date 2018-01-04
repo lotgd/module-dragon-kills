@@ -145,6 +145,10 @@ class ModuleTest extends ModuleTestCase
         /** @var Character $character */
         [$game, $v, $character] = $this->goToForest(4);
 
+        // Set experience and needed experience
+        $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 30000);
+        $character->setProperty(ResFightModule::CharacterPropertyNeededExperience, 31000);
+
         // Go to the cave
         $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
         $game->takeAction($action->getId());
@@ -179,5 +183,16 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame($eventCountBefore+1, DragonKillsEvent::$called);
         $this->assertSame(1, $character->getLevel());
         $this->assertSame(10, $character->getMaxHealth());
+
+        $this->assertSame(0, $character->getProperty(ResFightModule::CharacterPropertyCurrentExperience, null));
+        $this->assertSame(100, $character->getProperty(ResFightModule::CharacterPropertyNeededExperience, null));
+
+        $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 1]);
+        $action2 = $this->assertHasAction($v, ["getTitle", "It is a new day"]);
+        $this->assertSame($action1, $action2);
+
+        // Take action - since we reset new day, it should lead to a new day
+        $game->takeAction($action1->getId());
+        $this->assertSame("It is a new day!", $v->getTitle());
     }
 }

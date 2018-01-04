@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace LotGD\Module\DragonKills\Scenes;
 
+use DateTime;
 use Doctrine\Common\Util\Debug;
 use LotGD\Core\Action;
 use LotGD\Core\ActionGroup;
@@ -18,6 +19,7 @@ use LotGD\Module\Forest\Models\Creature;
 use LotGD\Module\Forest\Scenes\Forest;
 use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Village\Module as VillageModule;
+use LotGD\Module\NewDay\Module as NewDayModule;
 
 class DragonScene
 {
@@ -188,6 +190,15 @@ TXT
                 DragonKillsModule::DragonKilledEvent,
                 CharacterEventData::create(["character" => $g->getCharacter()])
             );
+
+            // Set back last new day and set action to village
+            $g->getCharacter()->setProperty(
+                NewDayModule::CharacterPropertyLastNewDay,
+                new DateTime("now - 1 year")
+            );
+
+
+            self::addActionToVillage($g, $viewpoint, $viewpoint->getScene()->getId(), "It is a new day");
         }
 
         return $context;
@@ -222,21 +233,26 @@ TXT
                 $viewpoint->setDescription("You have been slain by the Green Dragon!!!");
                 $viewpoint->addDescriptionParagraph("You might challenge him tomorrow again.");
 
-                // Find village scene by getting the forest and find a connected village.
-                /** @var Scene $dragonScene */
-                $dragonScene = $g->getEntityManager()->getRepository(Scene::class)->find($referrerSceneId);
-                $forestScene = $dragonScene->getConnectedScenes()->filter(function (Scene $scene) {
-                    return ($scene->getTemplate() === Forest::Template);
-                })->first();
-                $villageScene = $forestScene->getConnectedScenes()->filter(function (Scene $scene) {
-                    return ($scene->getTemplate() === VillageModule::VillageScene);
-                })->first();
-
-                $defaultGroup = $viewpoint->findActionGroupById(ActionGroup::DefaultGroup);
-                $defaultGroup->addAction(new Action($villageScene->getId(), "Return to the village", ["subAction" => "epilogue"]));
+                self::addActionToVillage($g, $viewpoint, $referrerSceneId, "Return to the village");
             }
         }
 
         return $context;
+    }
+
+    public static function addActionToVillage(Game $g, Viewpoint $viewpoint, int $referrerSceneId, string $title, array $parameters = []): void
+    {
+        // Find village scene by getting the forest and find a connected village.
+        /** @var Scene $dragonScene */
+        $dragonScene = $g->getEntityManager()->getRepository(Scene::class)->find($referrerSceneId);
+        $forestScene = $dragonScene->getConnectedScenes()->filter(function (Scene $scene) {
+            return ($scene->getTemplate() === Forest::Template);
+        })->first();
+        $villageScene = $forestScene->getConnectedScenes()->filter(function (Scene $scene) {
+            return ($scene->getTemplate() === VillageModule::VillageScene);
+        })->first();
+
+        $defaultGroup = $viewpoint->findActionGroupById(ActionGroup::DefaultGroup);
+        $defaultGroup->addAction(new Action($villageScene->getId(), $title, $parameters));
     }
 }
