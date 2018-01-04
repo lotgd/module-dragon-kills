@@ -98,4 +98,41 @@ class ModuleTest extends ModuleTestCase
         $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
         $this->assertFalse($character->getProperty(DragonKillModule::CharacterPropertySeenDragon, null));
     }
+
+    public function testIfDragonSceneConnectsToVillageIfCharacterLost()
+    {
+        /** @var Game $game */
+        /** @var Viewpoint $v */
+        /** @var Character $character */
+        [$game, $v, $character] = $this->goToForest(3);
+
+        // Go to the cave
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $game->takeAction($action->getId());
+        $this->assertSame("The Green Dragon", $v->getTitle());
+
+        // Challenge the dragon
+        $action = $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
+
+        // Fight until we die
+        $character->setLevel(1);
+        do {
+            $game->takeAction($action->getId());
+
+            if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
+                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+            } else {
+                break;
+            }
+        } while (true);
+
+        $this->assertFalse($character->isAlive());
+        $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 1]);
+        $action2 = $this->assertHasAction($v, ["getTitle", "Return to the village"]);
+
+        // Assert we are back in the village.
+        $this->assertSame($action1, $action2);
+        $game->takeAction($action1->getId());
+        $this->assertSame("Village", $v->getTitle());
+    }
 }

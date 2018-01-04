@@ -17,6 +17,7 @@ use LotGD\Module\DragonKills\Scenes\DragonScene;
 use LotGD\Module\Forest\Module as ForestModule;
 use LotGD\Module\Forest\Scenes\Forest;
 use LotGD\Module\NewDay\Module as NewDayModule;
+use LotGD\Module\Res\Fight\Module as ResFightModule;
 
 class Module implements ModuleInterface {
     const ModuleIdentifier = "lotgd/module-dragon-kills";
@@ -41,6 +42,10 @@ class Module implements ModuleInterface {
 
             case NewDayModule::HookAfterNewDay:
                 $g->getCharacter()->setProperty(self::CharacterPropertySeenDragon, false);
+                break;
+
+            case ResFightModule::HookBattleOver:
+                return DragonScene::battleOver($g, $context);
                 break;
 
             case self::DragonKilledEvent:

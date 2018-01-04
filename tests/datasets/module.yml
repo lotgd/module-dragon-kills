@@ -1,8 +1,8 @@
 characters:
   -
     id: 1
-    name: "Gandalf the White"
-    displayName: "Gandalf the White"
+    name: "Gandalf the Explorer"
+    displayName: "Gandalf the Explorer"
     maxHealth: 200
     health: 200
     level: 15
@@ -13,6 +13,14 @@ characters:
     displayName: "Gandalf the Tired"
     maxHealth: 200
     health: 200
+    level: 15
+    deletedAt:
+  -
+    id: 3
+    name: "Gandalf the Gray"
+    displayName: "Gandalf the Gray"
+    maxHealth: 10
+    health: 10
     level: 15
     deletedAt:
 scenes:
@@ -128,5 +136,9 @@ event_subscriptions:
     library: "lotgd/module-dragon-kills"
   -
     pattern: "#h/lotgd/core/navigate-to/lotgd/module-dragon-kills/dragon#"
+    class: "LotGD\\Module\\DragonKills\\Module"
+    library: "lotgd/module-dragon-kills"
+  -
+    pattern: "#h/lotgd/module-res-fight/battleOver#"
     class: "LotGD\\Module\\DragonKills\\Module"
     library: "lotgd/module-dragon-kills"

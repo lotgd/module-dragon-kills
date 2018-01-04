@@ -16,6 +16,7 @@ use LotGD\Core\Tests\ModelTestCase;
 use LotGD\Core\Models\Module as ModuleModel;
 
 use LotGD\Module\DragonKills\Module;
+use PHPUnit\Framework\AssertionFailedError;
 
 class ModuleTestCase extends ModelTestCase
 {
@@ -124,8 +125,7 @@ class ModuleTestCase extends ModelTestCase
                     $checkedOnce = True;
                 }
 
-                # Using KNF, !A or B is only false if A is true and B is not.
-                if ($action->$methodToCheck() == $valueToHave and (!is_null($groupTitle) or $group->getTitle() === $groupTitle)) {
+                if ($action->$methodToCheck() == $valueToHave and (is_null($groupTitle) or $group->getTitle() === $groupTitle)) {
                     $found = $action;
                 }
             }
@@ -143,7 +143,11 @@ class ModuleTestCase extends ModelTestCase
     protected function assertHasAction(Viewpoint $viewpoint, array $actionParams, ?string $groupTitle = null): Action
     {
         $action = $this->searchAction($viewpoint, $actionParams, $groupTitle);
-        $this->assertNotNull($action);
+
+        if ($action === null) {
+            throw new AssertionFailedError("Assertion that viewpoint has action failed.");
+        }
+
         return $action;
     }
 }
