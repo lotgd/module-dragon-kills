@@ -18,6 +18,7 @@ use LotGD\Module\DragonKills\Scenes\DragonScene;
 use LotGD\Module\Forest\Module as ForestModule;
 use LotGD\Module\Forest\Scenes\Forest;
 use LotGD\Module\NewDay\Module as NewDayModule;
+use LotGD\Module\Res\Fight\Models\CharacterResFightExtension;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
 
 class Module implements ModuleInterface {
@@ -65,8 +66,11 @@ class Module implements ModuleInterface {
                 $character->setHealth($character->getMaxHealth());
 
                 // Reset experience
-                $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 0);
-                $character->setProperty(ResFightModule::CharacterPropertyNeededExperience, ResFightModule::getNeededExperienceByLevel(1));
+                CharacterResFightExtension::setCurrentExperienceForCharacter($character, 0);
+                CharacterResFightExtension::setRequiredExperienceForCharacter(
+                    $character,
+                    CharacterResFightExtension::calculateNeededExperienceForCharacter($character, $g)
+                );
                 break;
         }
 

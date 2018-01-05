@@ -240,7 +240,15 @@ TXT
         return $context;
     }
 
-    public static function addActionToVillage(Game $g, Viewpoint $viewpoint, int $referrerSceneId, string $title, array $parameters = []): void
+    /**
+     * Helper function to add an action to the village bound to the
+     * @param Game $g
+     * @param Viewpoint $viewpoint
+     * @param int $referrerSceneId
+     * @param string $title
+     * @param array $parameters
+     */
+    private static function addActionToVillage(Game $g, Viewpoint $viewpoint, int $referrerSceneId, string $title, array $parameters = []): void
     {
         // Find village scene by getting the forest and find a connected village.
         /** @var Scene $dragonScene */

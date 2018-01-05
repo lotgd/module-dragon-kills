@@ -12,6 +12,7 @@ use LotGD\Core\Models\Viewpoint;
 use LotGD\Core\Tests\ModelTestCase;
 use LotGD\Module\DragonKills\Tests\Helpers\DragonKillsEvent;
 use LotGD\Module\Res\Fight\Fight;
+use LotGD\Module\Res\Fight\Models\CharacterResFightExtension;
 use LotGD\Module\Res\Fight\Tests\helpers\EventRegistry;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
 
@@ -145,9 +146,9 @@ class ModuleTest extends ModuleTestCase
         /** @var Character $character */
         [$game, $v, $character] = $this->goToForest(4);
 
-        // Set experience and needed experience
-        $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 30000);
-        $character->setProperty(ResFightModule::CharacterPropertyNeededExperience, 31000);
+        // Set experience and required experience
+        CharacterResFightExtension::setCurrentExperienceForCharacter($character, 30000);
+        CharacterResFightExtension::setRequiredExperienceForCharacter($character, 31000);
 
         // Go to the cave
         $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
@@ -184,8 +185,8 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame(1, $character->getLevel());
         $this->assertSame(10, $character->getMaxHealth());
 
-        $this->assertSame(0, $character->getProperty(ResFightModule::CharacterPropertyCurrentExperience, null));
-        $this->assertSame(100, $character->getProperty(ResFightModule::CharacterPropertyNeededExperience, null));
+        $this->assertSame(0, CharacterResFightExtension::getCurrentExperienceForCharacter($character));
+        $this->assertSame(100, CharacterResFightExtension::getRequiredExperienceForCharacter($character, $this->g));
 
         $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 1]);
         $action2 = $this->assertHasAction($v, ["getTitle", "It is a new day"]);
