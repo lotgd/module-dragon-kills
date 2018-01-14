@@ -5,3 +5,5 @@ subscriptionPatterns:
   - "#h/lotgd/module-res-fight/battleOver#"
   - "#h/lotgd/core/navigate-to/lotgd/module-dragon-kills/dragon#"
   - "/e\/lotgd\/dragon-kills\/kill/"
+modelExtensions:
+  - "LotGD\\Module\\DragonKills\\Models\\CharacterDragonKillExtension"

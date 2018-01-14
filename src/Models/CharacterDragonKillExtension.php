@@ -1,19 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Basilius Sauter
- * Date: 04.01.2018
- * Time: 14:44
- */
 
 namespace LotGD\Module\DragonKills\Models;
 
+use LotGD\Core\Doctrine\Annotations\Extension;
+use LotGD\Core\Doctrine\Annotations\ExtensionMethod;
 use LotGD\Core\Models\Character;
 use LotGD\Module\DragonKills\Module as DragonKillModule;
 
 /**
  * Additional API helpers for managing dragon kills on a user account.
  * @package LotGD\Module\DragonKills\Models
+ * @Extension(of="LotGD\Core\Models\Character")
  */
 class CharacterDragonKillExtension
 {
@@ -21,6 +18,7 @@ class CharacterDragonKillExtension
      * Returns the dragon kill count for a given character.
      * @param Character $character
      * @return int
+     * @ExtensionMethod(as="getDragonKillCount")
      */
     public static function getDragonKillCountForCharacter(Character $character): int
     {
@@ -31,6 +29,7 @@ class CharacterDragonKillExtension
      * Sets the dragon kill count for a given character.
      * @param Character $character
      * @param int $kills
+     * @ExtensionMethod(as="setDragonKillCount")
      */
     public static function setDragonKillCountForCharacter(Character $character, int $kills): void
     {
@@ -41,6 +40,7 @@ class CharacterDragonKillExtension
      * Increments the dragon kill count for a given character by a specified amount.
      * @param Character $character
      * @param int $additional_kills
+     * @ExtensionMethod(as="incrementDragonKillCount")
      */
     public static function incrementDragonKillCountForCharacter(Character $character, int $additional_kills = 1): void
     {

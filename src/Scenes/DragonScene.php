@@ -124,7 +124,8 @@ TXT
             $backAction->setTitle("Run away like a baby");
 
             # Add the deeper action
-            if ($viewpoint->hasActionGroup(self::ActionGroups["dragon"][0])) {
+            $dragonActionGroup = $viewpoint->findActionGroupById(self::ActionGroups["dragon"][0]);
+            if ($dragonActionGroup) {
                 $dragonActions = $viewpoint->findActionGroupById(self::ActionGroups["dragon"][0]);
             } else {
                 $dragonActions = new ActionGroup(self::ActionGroups["dragon"][0], self::ActionGroups["dragon"][1], self::ActionGroups["dragon"][2]);
@@ -188,7 +189,7 @@ TXT
 
             $g->getEventManager()->publish(
                 DragonKillsModule::DragonKilledEvent,
-                CharacterEventData::create(["character" => $g->getCharacter()])
+                CharacterEventData::create(["character" => $g->getCharacter(), "value" => null])
             );
 
             // Set back last new day and set action to village

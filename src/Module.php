@@ -58,7 +58,7 @@ class Module implements ModuleInterface {
                 $character = $g->getCharacter();
 
                 // For ease of access, also store the count on the character.
-                CharacterDragonKillExtension::incrementDragonKillCountForCharacter($character, 1);
+                $character->incrementDragonKillCount();
 
                 // Reset character
                 $character->setLevel(1);
@@ -66,11 +66,8 @@ class Module implements ModuleInterface {
                 $character->setHealth($character->getMaxHealth());
 
                 // Reset experience
-                CharacterResFightExtension::setCurrentExperienceForCharacter($character, 0);
-                CharacterResFightExtension::setRequiredExperienceForCharacter(
-                    $character,
-                    CharacterResFightExtension::calculateNeededExperienceForCharacter($character, $g)
-                );
+                $character->setCurrentExperience(0);
+                $character->setRequiredExperience($character->calculateNeededExperience());
                 break;
         }
 
