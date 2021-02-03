@@ -1,5 +1,5 @@
 # Module: Dragon Kills
-[![Build Status](https://travis-ci.org/lotgd/module-dragon-kills.svg?branch=master)](https://travis-ci.org/lotgd/module-dragon-kills)
+![Tests](https://github.com/lotgd/module-dragon-kills/workflows/Tests/badge.svg)
 
 Adds the green dragon to the forest to challenge if the character reached level 15. Additionaly, it 
 keeps track of the dragon kills in your realm and stores the kill count on the character model.
