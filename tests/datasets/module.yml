@@ -1,6 +1,6 @@
 characters:
   -
-    id: 1
+    id: "10000000-0000-0000-0000-000000000001"
     name: "Gandalf the Explorer"
     displayName: "Gandalf the Explorer"
     maxHealth: 200
@@ -8,7 +8,7 @@ characters:
     level: 15
     deletedAt:
   -
-    id: 2
+    id: "10000000-0000-0000-0000-000000000002"
     name: "Gandalf the Tired"
     displayName: "Gandalf the Tired"
     maxHealth: 200
@@ -16,7 +16,7 @@ characters:
     level: 15
     deletedAt:
   -
-    id: 3
+    id: "10000000-0000-0000-0000-000000000003"
     name: "Gandalf the Gray"
     displayName: "Gandalf the Gray"
     maxHealth: 10
@@ -24,7 +24,7 @@ characters:
     level: 15
     deletedAt:
   -
-    id: 4
+    id: "10000000-0000-0000-0000-000000000004"
     name: "Gandalf the White"
     displayName: "Gandalf the White"
     maxHealth: 150
@@ -33,43 +33,48 @@ characters:
     deletedAt:
 scenes:
   -
-    id: 1
+    id: "20000000-0000-0000-0000-000000000001"
     title: "Village"
     description: "The village square hustles and bustles. No one really notices that you're are standing there. You see various shops and businesses along main street. There is a curious looking rock to one side. On every side the village is surrounded by deep dark forest."
-    template: 'lotgd/module-village/village'
+    template: "LotGD\\Module\\Village\\SceneTemplates\\VillageScene"
   -
-    id: 2
+    id: "20000000-0000-0000-0000-000000000002"
     title: "A fight!"
     description: ""
-    template: "lotgd/module-res-fight/battle"
+    template: "LotGD\\Module\\Res\\Fight\\SceneTemplates\\BattleScene"
   -
-    id: 3
+    id: "20000000-0000-0000-0000-000000000003"
     title: "It is a new day!"
     description: "It is a new day."
-    template: "lotgd/module-new-day/newDay"
+    template: "LotGD\\Module\\NewDay\\SceneTemplates\\NewDayScene"
   -
-    id: 4
+    id: "20000000-0000-0000-0000-000000000004"
     title: "Continue"
     description: "Continue."
-    template: "lotgd/module-new-day/restoration"
+    template: "LotGD\\Module\\NewDay\\SceneTemplates\\ContinueScene"
   -
-    id: 5
+    id: "20000000-0000-0000-0000-000000000005"
     title: "Forest"
     description: "The forest."
+    template: "lotgd/module-forest/forest"
+  -
+    id: "20000000-0000-0000-0000-000000000006"
+    title: "Forest"
+    description: "The second forest."
     template: "lotgd/module-forest/forest"
 scene_connections:
   -
     directionality: 1
     outgoingConnectionGroupName:
     incomingConnectionGroupName:
-    outgoingScene: 3
-    incomingScene: 4
+    outgoingScene: "20000000-0000-0000-0000-000000000003"
+    incomingScene: "20000000-0000-0000-0000-000000000004"
   -
     directionality: 0
     outgoingConnectionGroupName: "lotgd/module-village/outside"
-    outgoingConnectionGroupName: "lotgd/module-forest/back"
-    outgoingScene: 1
-    incomingScene: 5
+    incomingConnectionGroupName: "lotgd/module-forest/back"
+    outgoingScene: "20000000-0000-0000-0000-000000000001"
+    incomingScene: "20000000-0000-0000-0000-000000000005"
 scene_connection_groups:
   -
     scene: 1
