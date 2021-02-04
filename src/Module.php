@@ -45,7 +45,7 @@ class Module implements ModuleInterface {
     public static function handleAfterNewDayEvent(Game $g, EventContext $context): EventContext
     {
         $g->getCharacter()->setProperty(self::CharacterPropertySeenDragon, false);
-        $g->getLogger()->debug("module-dragon-kills: {$character}: Set property 'SeenDragon' to false.");
+        $g->getLogger()->debug("module-dragon-kills: {$g->getCharacter()}: Set property 'SeenDragon' to false.");
 
         return $context;
     }

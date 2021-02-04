@@ -35,11 +35,6 @@ class ModuleTestCase extends ModelTestCase
         return Yaml::parseFile(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', 'module.yml']));
     }
 
-    public function useSilentHandler(): bool
-    {
-        return false;
-    }
-
     public function getCwd(): string
     {
         return implode(DIRECTORY_SEPARATOR, [__DIR__, '..']);
