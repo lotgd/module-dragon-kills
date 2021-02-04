@@ -6,7 +6,7 @@ keeps track of the dragon kills in your realm and stores the kill count on the c
 
 ## API
 ### Events
-- `e/lotgd/dragon-kills/kill` (`Module::DragonKilledEvent`)\
+- `e/lotgd/module-dragon-kills/kill` (`Module::DragonKilledEvent`)\
 This module publishes this event if a dragon has been slain. It can be used to reset the character and
 strip him from his achievements.
 
