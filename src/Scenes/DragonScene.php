@@ -111,6 +111,7 @@ class DragonScene implements SceneTemplateInterface
 
         # add an action to every dragon kill scene.
         foreach ($dragonScenes as $scene) {
+            $g->getLogger()->debug("module-dragon-kills: {$character} can seek out the dragon.");
             $fightGroup->addAction(new Action($scene->getId(), sprintf("Seek out %s", $scene->getTitle())));
         }
 
@@ -151,10 +152,12 @@ class DragonScene implements SceneTemplateInterface
             # Set "user has seen dragon today" to true.
             $g->getCharacter()->setProperty(DragonKillsModule::CharacterPropertySeenDragon, true);
         } elseif ($parameters["subAction"] === "enter") {
-            $viewpoint->setDescription("Fighting down every urge to flee, you cautiously enter the cave entrance, intent on catching "
-                . "the great green dragon sleeping, so that you might slay it with a minimum of pain. Sadly, this is not to be the case, "
-                . "as you round a corner within the cave you discover the great beast sitting on its haunches on a huge pile of gold, "
-                . "picking its teeth with a rib.");
+            $viewpoint->setDescription(<<<TXT
+                Fighting down every urge to flee, you cautiously enter the cave entrance, intent on catching the great 
+                green dragon sleeping, so that you might slay it with a minimum of pain. Sadly, this is not to be the 
+                case, as you round a corner within the cave you discover the great beast sitting on its haunches on a 
+                huge pile of gold, picking its teeth with a rib."
+            TXT);
 
             $greenDragon = new Creature();
             $greenDragon->setName("The Green Dragon");
@@ -171,36 +174,39 @@ class DragonScene implements SceneTemplateInterface
         } elseif ($parameters["subAction"] === "epilogue") {
             $viewpoint->setTitle("Victory!");
             $viewpoint->setDescription(<<<TXT
-Before you, the great dragon lies immobile, its heavy breathing like acid to your lungs. You are covered, head to toe, with the foul creature's 
-thick black blood. The great beast begins to move its mouth. You spring back, angry at yourself for having been fooled by its ploy of death, and 
-watch for its huge tail to come sweeping your way. But it does not. Instead the dragon begins to speak.
-
-"Why have you come here mortal? What have I done to you?" it says with obvious effort. "Always my kind are sought out to be destroyed. Why? 
-Because of stories from distant lands that tell of dragons preying on the weak? I well you that these stories come only from misunderstanding 
-of us, and not because we devour your children." The beast pauses, breathing heavily before continuing, "I will tell you a secret. Behing me 
-now are my eggs. They will hatch, and the young will battle each other. Only one will survive, but she will be the strongest. She will quickly 
-grow, and be as powerful as me." Breath comes shorter and shallower for the great beast.
-
-"Why do you tell me this? Don't you know that I will destroy your eggs?" you ask.
-
-"No, you will not, for I know one more secret that you do not."
-
-"Pray tell oh mighty beast!"
-
-The great beast pauses, gathering the last of its energy. "Your kind cannot tolerate the blood of my kind. Even if you survive, 
-you will be a feeble creature, barely able to hold a weapon, your mind blank of all that you have learned. No, you are no threat 
-to my children, for you are already dead!"
-
-Realizing that already the edges of your vision are a little dim, you flee from the cave, bound to reach the healer's hut before 
-it is too late. Somewhere along the way you lose your weapon, and finally you trip on a stone in a shallow stream, sight now 
-limited to only a small circle that seems to floar around your head. As you lay, staring up through the trees, you think that 
-nearby you can hear the sounds of the village. Your final thought is that although you defeated the dragon, you reflect on the 
-irony that it defeated you.
-
-As your vision winks out, far away in the dragon's lair, an egg shuffles to its side, and a small crack appears in its thick 
-leathery skin.
-TXT
-);
+                Before you, the great dragon lies immobile, its heavy breathing like acid to your lungs. You are 
+                covered, head to toe, with the foul creature's thick black blood. The great beast begins to move its 
+                mouth. You spring back, angry at yourself for having been fooled by its ploy of death, and watch for its 
+                huge tail to come sweeping your way. But it does not. Instead the dragon begins to speak.
+                
+                "Why have you come here mortal? What have I done to you?" it says with obvious effort. "Always my kind 
+                are sought out to be destroyed. Why? Because of stories from distant lands that tell of dragons preying 
+                on the weak? I well you that these stories come only from misunderstanding of us, and not because we 
+                devour your children." The beast pauses, breathing heavily before continuing, "I will tell you a secret.
+                Behing me now are my eggs. They will hatch, and the young will battle each other. Only one will survive, 
+                but she will be the strongest. She will quickly grow, and be as powerful as me." Breath comes shorter 
+                and shallower for the great beast.
+                
+                "Why do you tell me this? Don't you know that I will destroy your eggs?" you ask.
+                
+                "No, you will not, for I know one more secret that you do not."
+                
+                "Pray tell oh mighty beast!"
+                
+                The great beast pauses, gathering the last of its energy. "Your kind cannot tolerate the blood of my 
+                kind. Even if you survive, you will be a feeble creature, barely able to hold a weapon, your mind blank 
+                of all that you have learned. No, you are no threat to my children, for you are already dead!"
+                
+                Realizing that already the edges of your vision are a little dim, you flee from the cave, bound to reach
+                the healer's hut before it is too late. Somewhere along the way you lose your weapon, and finally you 
+                trip on a stone in a shallow stream, sight now limited to only a small circle that seems to floar around
+                your head. As you lay, staring up through the trees, you think that nearby you can hear the sounds of 
+                the village. Your final thought is that although you defeated the dragon, you reflect on the irony that 
+                it defeated you.
+                
+                As your vision winks out, far away in the dragon's lair, an egg shuffles to its side, and a small crack 
+                appears in its thick leathery skin.
+            TXT);
 
             $g->getEventManager()->publish(
                 DragonKillsModule::DragonKilledEvent,
@@ -244,12 +250,15 @@ TXT
 
                 $defaultGroup = $viewpoint->findActionGroupById(ActionGroup::DefaultGroup);
                 $defaultGroup->addAction(new Action($referrerSceneId, "Continue", ["subAction" => "epilogue"]));
+
+                $g->getLogger()->debug("module-dragon-kills: {$character} battled a dragon, and won.");
             } else {
                 $viewpoint->setTitle("Defeat!");
                 $viewpoint->setDescription("You have been slain by the Green Dragon!!!");
                 $viewpoint->addDescriptionParagraph("You might challenge him tomorrow again.");
 
                 self::addActionToVillage($g, $viewpoint, $referrerSceneId, "Return to the village");
+                $g->getLogger()->debug("module-dragon-kills: {$character} battled a dragon, and lost.");
             }
         }
 

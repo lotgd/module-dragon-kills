@@ -45,11 +45,15 @@ class Module implements ModuleInterface {
     public static function handleAfterNewDayEvent(Game $g, EventContext $context): EventContext
     {
         $g->getCharacter()->setProperty(self::CharacterPropertySeenDragon, false);
+        $g->getLogger()->debug("module-dragon-kills: {$character}: Set property 'SeenDragon' to false.");
+
         return $context;
     }
 
     public static function handleDragonKilledEvent(Game $g, EventContext $context): EventContext
     {
+        $logger = $g->getLogger();
+
         // Save an entry in the DB for this DK.
         $dk = new DragonKill($g->getCharacter(), $g->getTimeKeeper()->getGameTime());
         $dk->save($g->getEntityManager());
@@ -67,6 +71,8 @@ class Module implements ModuleInterface {
         // Reset experience
         $character->setCurrentExperience(0);
         $character->setRequiredExperience($character->calculateNeededExperience());
+
+        $logger->debug("module-dragon-kills: {$character} killed a dragon.");
 
         return $context;
     }
