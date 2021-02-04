@@ -5,15 +5,18 @@ namespace LotGD\Module\DragonKills\Models;
 
 use DateTime;
 
-use Doctrine\ORM\EntityManagerInterface;
+use DateTimeInterface;
+use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 
 use LotGD\Core\Models\SaveableInterface;
 use LotGD\Core\Models\Character;
 use LotGD\Core\Tools\Model\Saveable;
-use LotGD\Module\DragonKills\Module as DragonKillModule;
-use LotGD\Module\DragonKills\Tests\Helpers\DragonKillsEvent;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * Model for tracking dragon kills, including who and when they slayed the
@@ -25,23 +28,23 @@ class DragonKill implements SaveableInterface
 {
     use Saveable;
 
-    /** @Id @Column(type="integer") @GeneratedValue */
-    private $id;
+    /** @Id @Column(type="uuid", unique=True) */
+    private UuidInterface $id;
     /**
      * @ManyToOne(targetEntity="LotGD\Core\Models\Character", fetch="EAGER")
-     * @JoinColumn(name="killer_id", referencedColumnName="id", nullable=false)
+     * @JoinColumn(name="killer_id", referencedColumnName="id", nullable=true)
      */
-    private $killer;
+    private ?Character $killer = null;
     /** @Column(type="text", nullable=false) */
 
     /** @Column(type="datetime", nullable=false) */
-    private $killedAt;
+    private DateTimeInterface $killedAt;
 
     /** @Column(type="datetime", nullable=false) */
-    private $createdAt;
+    private DateTimeInterface $createdAt;
 
     /** @var array */
-    private static $fillable = [
+    private static array $fillable = [
         "killer",
         "killedAt",
     ];
@@ -49,11 +52,12 @@ class DragonKill implements SaveableInterface
     /**
      * Construct a new dragon kill.
      *
-     * @param \LotGD\Core\Models\Character $killer
+     * @param Character $killer
      * @param DateTime $gameTime The game time at which this kill occurred.
      */
     public function __construct(Character $killer, DateTime $gameTime)
     {
+        $this->id = Uuid::uuid4();
         $this->killer = $killer;
         $this->killedAt = $gameTime;
         $this->createdAt = new DateTime();
@@ -63,16 +67,16 @@ class DragonKill implements SaveableInterface
      * Returns the id
      * @return int
      */
-    public function getId(): int
+    public function getId(): UuidInterface
     {
         return $this->id;
     }
 
     /**
      * Returns the character who did the killing.
-     * @return \LotGD\Core\Models\Character
+     * @return Character|null
      */
-    public function getKiller(): Character
+    public function getKiller(): ?Character
     {
         return $this->killer;
     }

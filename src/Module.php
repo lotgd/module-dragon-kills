@@ -3,22 +3,19 @@ declare(strict_types=1);
 
 namespace LotGD\Module\DragonKills;
 
-use Composer\Script\Event;
 use LotGD\Core\Events\EventContext;
+use LotGD\Core\Exceptions\ArgumentException;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Scene;
 use LotGD\Core\Models\SceneConnectable;
 use LotGD\Core\Module as ModuleInterface;
-use LotGD\Core\Models\Character;
 use LotGD\Core\Models\Module as ModuleModel;
 
-use LotGD\Module\DragonKills\Models\CharacterDragonKillExtension;
 use LotGD\Module\DragonKills\Models\DragonKill;
 use LotGD\Module\DragonKills\Scenes\DragonScene;
 use LotGD\Module\Forest\Module as ForestModule;
-use LotGD\Module\Forest\Scenes\Forest;
+use LotGD\Module\Forest\SceneTemplates\Forest;
 use LotGD\Module\NewDay\Module as NewDayModule;
-use LotGD\Module\Res\Fight\Models\CharacterResFightExtension;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
 
 class Module implements ModuleInterface {
@@ -29,78 +26,99 @@ class Module implements ModuleInterface {
 
     const DragonKilledEvent = "e/" . self::ModuleIdentifier . "/kill";
 
+    const GeneratedSceneProperty = "generatedScenes";
+
     public static function handleEvent(Game $g, EventContext $context): EventContext
     {
         $event = $context->getEvent();
 
-        switch ($event) {
-            case ForestModule::HookForestNavigation:
-                return DragonScene::forestNavigationHook($g, $context);
-                break;
+        return match ($event) {
+            ForestModule::HookForestNavigation => DragonScene::forestNavigationHook($g, $context),
+            "h/lotgd/core/navigate-to/" . DragonScene::getNavigationEvent() => DragonScene::navigateToScene($g, $context),
+            NewDayModule::HookAfterNewDay => self::handleAfterNewDayEvent($g, $context),
+            ResFightModule::HookBattleOver => DragonScene::battleOver($g, $context),
+            self::DragonKilledEvent => self::handleDragonKilledEvent($g, $context),
+            default => $context,
+        };
+    }
 
-            case "h/lotgd/core/navigate-to/" . DragonScene::Template:
-                return DragonScene::navigateToScene($g, $context);
-                break;
+    public static function handleAfterNewDayEvent(Game $g, EventContext $context): EventContext
+    {
+        $g->getCharacter()->setProperty(self::CharacterPropertySeenDragon, false);
+        return $context;
+    }
 
-            case NewDayModule::HookAfterNewDay:
-                $g->getCharacter()->setProperty(self::CharacterPropertySeenDragon, false);
-                break;
+    public static function handleDragonKilledEvent(Game $g, EventContext $context): EventContext
+    {
+        // Save an entry in the DB for this DK.
+        $dk = new DragonKill($g->getCharacter(), $g->getTimeKeeper()->getGameTime());
+        $dk->save($g->getEntityManager());
 
-            case ResFightModule::HookBattleOver:
-                return DragonScene::battleOver($g, $context);
-                break;
+        $character = $g->getCharacter();
 
-            case self::DragonKilledEvent:
-                // Save an entry in the DB for this DK.
-                $dk = new DragonKill($g->getCharacter(), $g->getTimeKeeper()->getGameTime());
-                $dk->save($g->getEntityManager());
+        // For ease of access, also store the count on the character.
+        $character->incrementDragonKillCount();
 
-                $character = $g->getCharacter();
+        // Reset character
+        $character->setLevel(1);
+        $character->setMaxHealth($character->getMaxHealth() - 140);
+        $character->setHealth($character->getMaxHealth());
 
-                // For ease of access, also store the count on the character.
-                $character->incrementDragonKillCount();
-
-                // Reset character
-                $character->setLevel(1);
-                $character->setMaxHealth($character->getMaxHealth() - 140);
-                $character->setHealth($character->getMaxHealth());
-
-                // Reset experience
-                $character->setCurrentExperience(0);
-                $character->setRequiredExperience($character->calculateNeededExperience());
-                break;
-        }
+        // Reset experience
+        $character->setCurrentExperience(0);
+        $character->setRequiredExperience($character->calculateNeededExperience());
 
         return $context;
     }
 
+    /**
+     * @param Game $g
+     * @param ModuleModel $module
+     * @throws ArgumentException
+     */
     public static function onRegister(Game $g, ModuleModel $module)
     {
-        $forestScenes = $g->getEntityManager()->getRepository(Scene::class)
-            ->findBy(["template" => Forest::Template]);
+        $em = $g->getEntityManager();
+
+        /** @var Scene[] $forestScenes */
+        $forestScenes = $em->getRepository(Scene::class)->findBy(["template" => Forest::class]);
+        $generatedScenes = [];
 
         foreach ($forestScenes as $forestScene) {
-            $dragonScene = DragonScene::create();
+            $dragonScene = DragonScene::getScaffold();
 
             $dragonSceneConnectionGroup = $dragonScene->getConnectionGroup(DragonScene::ActionGroups["back"][0]);
             $dragonSceneConnectionGroup->connect($forestScene, SceneConnectable::Unidirectional);
 
-            $g->getEntityManager()->persist($dragonScene);
+            $em->persist($dragonScene);
+            $em->persist($dragonScene->getTemplate());
+            $generatedScenes[] = $dragonScene->getId();
         }
+
+        $module->setProperty(self::GeneratedSceneProperty, $generatedScenes);
     }
 
+    /**
+     * @param Game $g
+     * @param ModuleModel $module
+     */
     public static function onUnregister(Game $g, ModuleModel $module)
     {
         $em = $g->getEntityManager();
 
-        // delete all dragon scenes
-        $scenes = $g->getEntityManager()->getRepository(Scene::class)
-            ->findBy(["template" => DragonScene::Template]);
+        $generatedScenes = $module->getProperty(self::GeneratedSceneProperty, []);
+
+        // Get all dragon scenes
+        /** @var Scene[] $scenes */
+        $scenes = $em->getRepository(Scene::class)->findBy(["template" => DragonScene::class]);
 
         foreach($scenes as $scene) {
-            $g->getEntityManager()->remove($scene);
+            if (in_array($scene->getId(), $generatedScenes)) {
+                $g->getEntityManager()->remove($scene);
+                $g->getEntityManager()->remove($scene->getTemplate());
+            } else {
+                $scene->setTemplate(null);
+            }
         }
-
-        $g->getEntityManager()->flush();
     }
 }

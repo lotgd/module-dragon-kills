@@ -35,6 +35,11 @@ class ModuleTestCase extends ModelTestCase
         return Yaml::parseFile(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', 'module.yml']));
     }
 
+    public function useSilentHandler(): bool
+    {
+        return false;
+    }
+
     public function getCwd(): string
     {
         return implode(DIRECTORY_SEPARATOR, [__DIR__, '..']);
@@ -49,7 +54,7 @@ class ModuleTestCase extends ModelTestCase
         // if they read properties from the model).
         $this->moduleModel = new ModuleModel(self::Library);
         $this->moduleModel->save($this->getEntityManager());
-        \LotGD\Module\Training\Module::onRegister($this->g, $this->moduleModel);
+        Module::onRegister($this->g, $this->moduleModel);
 
         $this->g->getEntityManager()->flush();
         $this->g->getEntityManager()->clear();
@@ -60,7 +65,7 @@ class ModuleTestCase extends ModelTestCase
         $this->g->getEntityManager()->flush();
         $this->g->getEntityManager()->clear();
 
-        \LotGD\Module\Training\Module::onUnregister($this->g, $this->moduleModel);
+        Module::onUnregister($this->g, $this->moduleModel);
         $m = $this->getEntityManager()->getRepository(ModuleModel::class)->find(self::Library);
         if ($m) {
             $m->delete($this->getEntityManager());

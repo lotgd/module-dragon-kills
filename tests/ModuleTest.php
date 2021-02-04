@@ -4,10 +4,13 @@ declare(strict_types=1);
 namespace LotGD\Module\DragonKills\Tests;
 
 use Doctrine\Common\Util\Debug;
+use LotGD\Core\Action;
 use LotGD\Core\Events\EventContext;
 use LotGD\Core\Events\EventContextData;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Character;
+use LotGD\Core\Models\Module;
+use LotGD\Core\Models\ModuleProperty;
 use LotGD\Core\Models\Viewpoint;
 use LotGD\Core\Tests\ModelTestCase;
 use LotGD\Module\DragonKills\Tests\Helpers\DragonKillsEvent;
@@ -17,6 +20,7 @@ use LotGD\Module\Res\Fight\Tests\helpers\EventRegistry;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
 
 use LotGD\Module\DragonKills\Module as DragonKillModule;
+use PHPUnit\Framework\InvalidArgumentException;
 
 class ModuleTest extends ModuleTestCase
 {
@@ -32,9 +36,10 @@ class ModuleTest extends ModuleTestCase
         );
 
         $newContext = DragonKillModule::handleEvent($this->g, $context);
+        $this->assertSame($context, $newContext);
     }
 
-    protected function goToForest(int $characterId, callable $executeBeforeTakingActionToForest = null): array
+    protected function goToForest(string $characterId, callable $executeBeforeTakingActionToForest = null): array
     {
         /** @var Game $game */
         $game = $this->g;
@@ -44,15 +49,17 @@ class ModuleTest extends ModuleTestCase
 
         // New day
         $v = $game->getViewpoint();
+
         $this->assertSame("It is a new day!", $v->getTitle());
         // Village
         $action = $v->getActionGroups()[0]->getActions()[0];
         $game->takeAction($action->getId());
         $this->assertSame("Village", $v->getTitle());
         // Forest
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000005"], "Outside");
+        $action = $this->getAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000005"], "Outside");
 
-        if ($executeBeforeTakingActionToForest !== NULL) {
+        if ($executeBeforeTakingActionToForest !== null) {
             $executeBeforeTakingActionToForest($game, $v, $character);
         }
 
@@ -62,37 +69,47 @@ class ModuleTest extends ModuleTestCase
         return [$game, $v, $character];
     }
 
+    public function getDragonSceneId()
+    {
+        $em = $this->getEntityManager();
+        /** @var Module $module */
+        $module = $em->getRepository(Module::class)->find(self::Library);
+        $sceneIds = $module->getProperty(DragonKillModule::GeneratedSceneProperty);
+        return $sceneIds[0];
+    }
+
     public function testIfConnectionToDragonIsPresentIfCharacterIsLevel15AndHasNotYetSeenDragonAndIfConnectionIsGoneIfHeLeaves()
     {
-        [$game, $v, $character] = $this->goToForest(1);
+        [$game, $v, $character] = $this->goToForest("10000000-0000-0000-0000-000000000001");
 
         // Assert action to green dragon and go there
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $this->assertHasAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
+        $action = $this->getAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
         $game->takeAction($action->getId());
         $this->assertSame("The Green Dragon", $v->getTitle());
 
         // Assert action back
-        $action1 = $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
-        $action2 = $this->assertHasAction($v, ["getTitle", "Run away like a baby"], "Back");
-        $action3 = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Back");
+        $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
+        $this->assertHasAction($v, ["getTitle", "Run away like a baby"], "Back");
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000005"], "Back");
+        $action3 = $this->getAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000005"], "Back");
 
-        $this->assertSame($action2, $action3);
         $game->takeAction($action3->getId());
         $this->assertSame("Forest", $v->getTitle());
 
         // Assert action to green dragon disappeared
-        $action = $this->assertNotHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $this->assertNotHasAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
     }
 
     public function testIfConnectionToDragonIsPresentIfCharacterHadNewDayReset()
     {
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(2);
+        $character = $this->getEntityManager()->getRepository(Character::class)->find("10000000-0000-0000-0000-000000000002");
         $character->setProperty(DragonKillModule::CharacterPropertySeenDragon, true);
         $this->assertTrue($character->getProperty(DragonKillModule::CharacterPropertySeenDragon, null));
-        [$game, $v, $character] = $this->goToForest(2);
+        [$game, $v, $character] = $this->goToForest("10000000-0000-0000-0000-000000000002");
 
         // Assert action to green dragon it not there.
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $this->assertHasAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
         $this->assertFalse($character->getProperty(DragonKillModule::CharacterPropertySeenDragon, null));
     }
 
@@ -101,15 +118,17 @@ class ModuleTest extends ModuleTestCase
         /** @var Game $game */
         /** @var Viewpoint $v */
         /** @var Character $character */
-        [$game, $v, $character] = $this->goToForest(3);
+        [$game, $v, $character] = $this->goToForest("10000000-0000-0000-0000-000000000003");
 
         // Go to the cave
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $this->assertHasAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
+        $action = $this->getAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
         $game->takeAction($action->getId());
         $this->assertSame("The Green Dragon", $v->getTitle());
 
         // Challenge the dragon
-        $action = $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
+        $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
+        $action = $this->getAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
 
         // Fight until we die
         $character->setLevel(1);
@@ -117,7 +136,8 @@ class ModuleTest extends ModuleTestCase
             $game->takeAction($action->getId());
 
             if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
-                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $action = $this->getAction($v, ["getTitle", "Attack"], "Fight");
             } else {
                 break;
             }
@@ -125,11 +145,11 @@ class ModuleTest extends ModuleTestCase
 
         $this->assertFalse($character->isAlive());
         $this->assertSame("Defeat!", $v->getTitle());
-        $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 1]);
-        $action2 = $this->assertHasAction($v, ["getTitle", "Return to the village"]);
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"]);
+        $action1 = $this->getAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"]);
+        $this->assertHasAction($v, ["getTitle", "Return to the village"]);
 
         // Assert we are back in the village.
-        $this->assertSame($action1, $action2);
         $game->takeAction($action1->getId());
         $this->assertSame("Village", $v->getTitle());
     }
@@ -139,19 +159,26 @@ class ModuleTest extends ModuleTestCase
         /** @var Game $game */
         /** @var Viewpoint $v */
         /** @var Character $character */
-        [$game, $v, $character] = $this->goToForest(4);
+        [$game, $v, $character] = $this->goToForest("10000000-0000-0000-0000-000000000004");
+        $game->getEventManager()->subscribe(
+            pattern: "#".DragonKillModule::DragonKilledEvent."#",
+            class: DragonKillsEvent::class,
+            library: "test"
+        );
 
         // Set experience and required experience
         CharacterResFightExtension::setCurrentExperienceForCharacter($character, 30000);
         CharacterResFightExtension::setRequiredExperienceForCharacter($character, 31000);
 
         // Go to the cave
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Fight");
+        $this->assertHasAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
+        $action = $this->getAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
         $game->takeAction($action->getId());
         $this->assertSame("The Green Dragon", $v->getTitle());
 
         // Challenge the dragon
-        $action = $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
+        $this->assertHasAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
+        $action = $this->getAction($v, ["getTitle", "Enter the cave"], "Dragon's Lair");
 
         // Fight until we win
         do {
@@ -160,7 +187,8 @@ class ModuleTest extends ModuleTestCase
             $character->setHealth($character->getMaxHealth());
 
             if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null) {
-                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $action = $this->getAction($v, ["getTitle", "Attack"], "Fight");
             } else {
                 break;
             }
@@ -168,12 +196,13 @@ class ModuleTest extends ModuleTestCase
 
         $this->assertTrue($character->isAlive());
         $this->assertSame("Victory!", $v->getTitle());
-        $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 6]);
-        $action2 = $this->assertHasAction($v, ["getTitle", "Continue"]);
+        $dragonSceneId = $this->getDragonSceneId();
+        $this->assertHasAction($v, ["getDestinationSceneId", $dragonSceneId]);
+        $action1 = $this->getAction($v, ["getDestinationSceneId", $dragonSceneId]);
+        $this->assertHasAction($v, ["getTitle", "Continue"]);
 
         $eventCountBefore = DragonKillsEvent::$called;
 
-        $this->assertSame($action1, $action2);
         $game->takeAction($action1->getId());
 
         $this->assertSame($eventCountBefore+1, DragonKillsEvent::$called);
@@ -181,11 +210,11 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame(10, $character->getMaxHealth());
 
         $this->assertSame(0, CharacterResFightExtension::getCurrentExperienceForCharacter($character));
-        $this->assertSame(100, CharacterResFightExtension::getRequiredExperienceForCharacter($character, $this->g));
+        $this->assertSame(100, CharacterResFightExtension::getRequiredExperienceForCharacter($character));
 
-        $action1 = $this->assertHasAction($v, ["getDestinationSceneId", 1]);
-        $action2 = $this->assertHasAction($v, ["getTitle", "It is a new day"]);
-        $this->assertSame($action1, $action2);
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"]);
+        $action1 = $this->getAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"]);
+        $this->assertHasAction($v, ["getTitle", "It is a new day"]);
 
         // Take action - since we reset new day, it should lead to a new day
         $game->takeAction($action1->getId());

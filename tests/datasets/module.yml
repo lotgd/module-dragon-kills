@@ -56,12 +56,33 @@ scenes:
     id: "20000000-0000-0000-0000-000000000005"
     title: "Forest"
     description: "The forest."
-    template: "lotgd/module-forest/forest"
+    template: "LotGD\\Module\\Forest\\SceneTemplates\\Forest"
   -
     id: "20000000-0000-0000-0000-000000000006"
     title: "Forest"
     description: "The second forest."
-    template: "lotgd/module-forest/forest"
+    template: "LotGD\\Module\\Forest\\SceneTemplates\\Forest"
+scene_templates:
+  -
+    class: "LotGD\\Module\\Village\\SceneTemplates\\VillageScene"
+    module: "lotgd/module-village"
+    userAssignable: false
+  -
+    class: "LotGD\\Module\\NewDay\\SceneTemplates\\NewDayScene"
+    module: "lotgd/module-new-day"
+    userAssignable: false
+  -
+    class: "LotGD\\Module\\NewDay\\SceneTemplates\\ContinueScene"
+    module: "lotgd/module-new-day"
+    userAssignable: false
+  -
+    class: "LotGD\\Module\\Res\\Fight\\SceneTemplates\\BattleScene"
+    module: "lotgd/module-res-fight"
+    userAssignable: false
+  -
+    class: "LotGD\\Module\\Forest\\SceneTemplates\\Forest"
+    module: "lotgd/module-forest"
+    userAssignable: false
 scene_connections:
   -
     directionality: 1
@@ -77,24 +98,24 @@ scene_connections:
     incomingScene: "20000000-0000-0000-0000-000000000005"
 scene_connection_groups:
   -
-    scene: 1
+    scene: "20000000-0000-0000-0000-000000000001"
     name: "lotgd/module-village/marketsquare"
     title: "The Marketsquare"
   -
-    scene: 1
+    scene: "20000000-0000-0000-0000-000000000001"
     name: "lotgd/module-village/residential"
     title: "Residential District"
   -
-    scene: 1
+    scene: "20000000-0000-0000-0000-000000000001"
     name: "lotgd/module-village/outside"
     title: "Outside"
   -
-    scene: 5
-    name: "lotgd/module-village/fight"
+    scene: "20000000-0000-0000-0000-000000000005"
+    name: "lotgd/module-forest/fight"
     title: "Fight"
   -
-    scene: 5
-    name: "lotgd/module-village/back"
+    scene: "20000000-0000-0000-0000-000000000005"
+    name: "lotgd/module-forest/back"
     title: "Back"
 modules:
   -
@@ -148,18 +169,14 @@ event_subscriptions:
     class: "LotGD\\Module\\DragonKills\\Module"
     library: "lotgd/module-dragon-kills"
   -
-    pattern: "#h/lotgd/core/navigate-to/lotgd/module-dragon-kills/dragon#"
-    class: "LotGD\\Module\\DragonKills\\Module"
-    library: "lotgd/module-dragon-kills"
-  -
     pattern: "#h/lotgd/module-res-fight/battleOver#"
     class: "LotGD\\Module\\DragonKills\\Module"
     library: "lotgd/module-dragon-kills"
   -
-    pattern: "#e/lotgd/module-dragon-kills/kill#"
+    pattern: "#h/lotgd/core/navigate-to/lotgd/module-dragon-kills/dragon#"
     class: "LotGD\\Module\\DragonKills\\Module"
     library: "lotgd/module-dragon-kills"
   -
     pattern: "#e/lotgd/module-dragon-kills/kill#"
-    class: "LotGD\\Module\\DragonKills\\Tests\\Helpers\\DragonKillsEvent"
+    class: "LotGD\\Module\\DragonKills\\Module"
     library: "lotgd/module-dragon-kills"

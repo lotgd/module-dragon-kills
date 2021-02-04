@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace LotGD\Module\DragonKills\Scenes;
 
 use DateTime;
-use Doctrine\Common\Util\Debug;
 use LotGD\Core\Action;
 use LotGD\Core\ActionGroup;
 use LotGD\Core\Battle;
@@ -13,15 +12,19 @@ use LotGD\Core\Events\EventContext;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Scene;
 use LotGD\Core\Models\SceneConnectionGroup;
+use LotGD\Core\Models\SceneTemplate;
 use LotGD\Core\Models\Viewpoint;
+use LotGD\Core\SceneTemplates\SceneTemplateInterface;
+use LotGD\Module\DragonKills\Module;
 use LotGD\Module\DragonKills\Module as DragonKillsModule;
 use LotGD\Module\Forest\Models\Creature;
-use LotGD\Module\Forest\Scenes\Forest;
+use LotGD\Module\Forest\SceneTemplates\Forest;
 use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Village\Module as VillageModule;
 use LotGD\Module\NewDay\Module as NewDayModule;
+use LotGD\Module\Village\SceneTemplates\VillageScene;
 
-class DragonScene
+class DragonScene implements SceneTemplateInterface
 {
     const Template = DragonKillsModule::ModuleIdentifier . "/dragon";
     const ActionGroups = [
@@ -30,29 +33,41 @@ class DragonScene
     ];
     const BattleContext = DragonKillsModule::ModuleIdentifier . "/greenDragonFight";
 
-    public static function create(): Scene
+    private static ?SceneTemplate $template = null;
+
+    public static function getNavigationEvent(): string
     {
-        $scene = Scene::create([
-            "template" => self::Template,
-            "title" => "The Green Dragon",
-            "description" => <<<TXT
-You approach the blackened entrance of a cave deep in the forest, though the trees are scorched to stumps for a hundred 
-yards all around. A thin tendril of smoke escapes the root of the cave's entrance, and is whisked away by a suddenly cold
-and brist wind. The mouth of the cave lies up a dozen feet from the forest floor, set in the side of a cliff, with debris
-making a conical ramp to the opening. Stalactites and stalagmites near the entrance trigger your imagination to inspire
-thoughts that the opening is really the mouth of a great leech.
+        return self::Template;
+    }
 
-You cautiously approach the entrance of the cave, and as you do, you hear, or perhaps feel a deep rumble that lasts thirty
-seconds or so, before silencing to a breeze of sulfur-air which wafts out of the cave. The sound starts again, and stops again
-in a regular rhythm.
+    public static function getScaffold(): Scene
+    {
+        if (self::$template === null) {
+            self::$template = new SceneTemplate(self::class, Module::ModuleIdentifier);
+        }
 
-You clamber up the debris pile leading to the mouth of the cave, your feet crunching on the apparent remains of previous heroes,
-or perhaps hors d'oeuvre.
+        $scene = new Scene(
+            title: "The Green Dragon",
+            description: <<<TXT
+                You approach the blackened entrance of a cave deep in the forest, though the trees are scorched to stumps for a hundred 
+                yards all around. A thin tendril of smoke escapes the root of the cave's entrance, and is whisked away by a suddenly cold
+                and brist wind. The mouth of the cave lies up a dozen feet from the forest floor, set in the side of a cliff, with debris
+                making a conical ramp to the opening. Stalactites and stalagmites near the entrance trigger your imagination to inspire
+                thoughts that the opening is really the mouth of a great leech.
+                
+                You cautiously approach the entrance of the cave, and as you do, you hear, or perhaps feel a deep rumble that lasts thirty
+                seconds or so, before silencing to a breeze of sulfur-air which wafts out of the cave. The sound starts again, and stops again
+                in a regular rhythm.
+                
+                You clamber up the debris pile leading to the mouth of the cave, your feet crunching on the apparent remains of previous heroes,
+                or perhaps hors d'oeuvre.
+                
+                Every instinct in your body wants to run, and run quickly, back to the parts of the forest where it is warmer. What do you do?
+            TXT,
+            template: self::$template,
+        );
 
-Every instinct in your body wants to run, and run quickly, back to the parts of the forest where it is warmer. What do you do?
-TXT
-        ]);
-
+        # Add action groups
         foreach (self::ActionGroups as $actionGroup) {
             $actionGroup = new SceneConnectionGroup($actionGroup[0], $actionGroup[1]);
             $scene->addConnectionGroup($actionGroup);
@@ -87,7 +102,7 @@ TXT
         $dragonScenes = [];
         /** @var Scene $scene */
         foreach ($scenes as $scene) {
-            if ($scene->getTemplate() == DragonScene::Template) {
+            if ($scene->getTemplate()?->getClass() === DragonScene::class) {
                 $dragonScenes[] = $scene;
             }
         }
@@ -249,16 +264,16 @@ TXT
      * @param string $title
      * @param array $parameters
      */
-    private static function addActionToVillage(Game $g, Viewpoint $viewpoint, int $referrerSceneId, string $title, array $parameters = []): void
+    private static function addActionToVillage(Game $g, Viewpoint $viewpoint, string $referrerSceneId, string $title, array $parameters = []): void
     {
         // Find village scene by getting the forest and find a connected village.
         /** @var Scene $dragonScene */
         $dragonScene = $g->getEntityManager()->getRepository(Scene::class)->find($referrerSceneId);
         $forestScene = $dragonScene->getConnectedScenes()->filter(function (Scene $scene) {
-            return ($scene->getTemplate() === Forest::Template);
+            return ($scene->getTemplate()?->getClass() === Forest::class);
         })->first();
         $villageScene = $forestScene->getConnectedScenes()->filter(function (Scene $scene) {
-            return ($scene->getTemplate() === VillageModule::VillageScene);
+            return ($scene->getTemplate()?->getClass() === VillageScene::class);
         })->first();
 
         $defaultGroup = $viewpoint->findActionGroupById(ActionGroup::DefaultGroup);
