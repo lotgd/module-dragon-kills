@@ -9,7 +9,7 @@ use LotGD\Core\Events\EventContext;
 use LotGD\Core\Events\EventContextData;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Character;
-use LotGD\Core\Models\Module;
+use LotGD\Core\Models\Module as ModuleModel;
 use LotGD\Core\Models\ModuleProperty;
 use LotGD\Core\Models\Viewpoint;
 use LotGD\Core\Tests\ModelTestCase;
@@ -20,6 +20,7 @@ use LotGD\Module\Res\Fight\Tests\helpers\EventRegistry;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
 
 use LotGD\Module\DragonKills\Module as DragonKillModule;
+use LotGD\Module\Res\Wealth\Models\CharacterResWealthExtension;
 use PHPUnit\Framework\InvalidArgumentException;
 
 class ModuleTest extends ModuleTestCase
@@ -72,8 +73,8 @@ class ModuleTest extends ModuleTestCase
     public function getDragonSceneId()
     {
         $em = $this->getEntityManager();
-        /** @var Module $module */
-        $module = $em->getRepository(Module::class)->find(self::Library);
+        /** @var ModuleModel $module */
+        $module = $em->getRepository(ModuleModel::class)->find(self::Library);
         $sceneIds = $module->getProperty(DragonKillModule::GeneratedSceneProperty);
         return $sceneIds[0];
     }
@@ -170,6 +171,8 @@ class ModuleTest extends ModuleTestCase
         CharacterResFightExtension::setCurrentExperienceForCharacter($character, 30000);
         CharacterResFightExtension::setRequiredExperienceForCharacter($character, 31000);
 
+        $character->setGold(5000);
+
         // Go to the cave
         $this->assertHasAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
         $action = $this->getAction($v, ["getDestinationSceneId", $this->getDragonSceneId()], "Fight");
@@ -208,6 +211,7 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame($eventCountBefore+1, DragonKillsEvent::$called);
         $this->assertSame(1, $character->getLevel());
         $this->assertSame(10, $character->getMaxHealth());
+        $this->assertSame(0, $character->getGold());
 
         $this->assertSame(0, CharacterResFightExtension::getCurrentExperienceForCharacter($character));
         $this->assertSame(100, CharacterResFightExtension::getRequiredExperienceForCharacter($character));

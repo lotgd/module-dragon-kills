@@ -83,18 +83,18 @@ class DragonKill implements SaveableInterface
 
     /**
      * Returns the game time at which the killing occurred.
-     * @return DateTime
+     * @return DateTimeInterface
      */
-    public function getKilledAt(): DateTime
+    public function getKilledAt(): DateTimeInterface
     {
         return $this->killedAt;
     }
 
     /**
      * Returns the datetime this message was created at
-     * @return DateTime
+     * @return DateTimeInterface
      */
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }

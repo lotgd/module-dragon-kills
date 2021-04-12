@@ -120,13 +120,19 @@ scene_connection_groups:
 modules:
   -
     library: 'lotgd/module-new-day'
-    createdAt: 2016-08-22
+    createdAt: "2016-08-22"
   -
     library: 'lotgd/module-village'
-    createdAt: 2016-08-22
+    createdAt: "2016-08-22"
   -
     library: 'lotgd/module-forest'
-    createdAt: 2016-08-22
+    createdAt: "2016-08-22"
+  -
+    library: 'lotgd/module-res-fight'
+    createdAt: "2016-08-22"
+  -
+    library: 'lotgd/module-res-wealth'
+    createdAt: "2016-08-22"
 event_subscriptions:
   -
     pattern: "#h/lotgd/core/default-scene#"

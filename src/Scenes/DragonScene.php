@@ -9,6 +9,8 @@ use LotGD\Core\ActionGroup;
 use LotGD\Core\Battle;
 use LotGD\Core\Events\CharacterEventData;
 use LotGD\Core\Events\EventContext;
+use LotGD\Core\Exceptions\ArgumentException;
+use LotGD\Core\Exceptions\CharacterNotFoundException;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Scene;
 use LotGD\Core\Models\SceneConnectionGroup;
@@ -81,6 +83,7 @@ class DragonScene implements SceneTemplateInterface
      * @param Game $g
      * @param EventContext $context
      * @return EventContext
+     * @throws CharacterNotFoundException
      */
     public static function forestNavigationHook(Game $g, EventContext $context): EventContext
     {
@@ -123,6 +126,8 @@ class DragonScene implements SceneTemplateInterface
      * @param Game $g
      * @param EventContext $context
      * @return EventContext
+     * @throws CharacterNotFoundException
+     * @throws ArgumentException
      */
     public static function navigateToScene(Game $g, EventContext $context): EventContext
     {
@@ -135,7 +140,6 @@ class DragonScene implements SceneTemplateInterface
             # No subAction => display intro.
 
             # Rename the back action
-            /** @var Action $backAction */
             $backAction = $viewpoint->findActionGroupById(self::ActionGroups["back"][0])->getActions()[0];
             $backAction->setTitle("Run away like a baby");
 
@@ -159,13 +163,14 @@ class DragonScene implements SceneTemplateInterface
                 huge pile of gold, picking its teeth with a rib."
             TXT);
 
-            $greenDragon = new Creature();
-            $greenDragon->setName("The Green Dragon");
-            $greenDragon->setWeapon("Great Flaming Maw");
-            $greenDragon->setLevel(18);
-            $greenDragon->setAttack(45);
-            $greenDragon->setDefense(25);
-            $greenDragon->setMaxHealth(300);
+            $greenDragon = new Creature(
+                name: "The Green Dragon",
+                weapon: "Great Flaming Maw",
+                level: 18,
+                attack: 45,
+                defense: 25,
+                maxHealth: 300,
+            );
             $greenDragon->setHealth(300);
 
             $fight = Fight::start($g, $greenDragon, $viewpoint->getScene(), self::BattleContext);

@@ -72,6 +72,9 @@ class Module implements ModuleInterface {
         $character->setCurrentExperience(0);
         $character->setRequiredExperience($character->calculateNeededExperience());
 
+        // Reset gold
+        $character->setGold(0);
+
         $logger->debug("module-dragon-kills: {$character} killed a dragon.");
 
         return $context;
